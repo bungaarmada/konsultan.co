@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String
+  phone     String?
+  createdAt DateTime @default(now())
+
+  projects  Project[]
+  documents Document[]
+}
+
+model Project {
+  id                String   @id @default(cuid())
+  homeownerId       String
+  homeowner         User     @relation(fields: [homeownerId], references: [id])
+  title             String
+  ownerName         String
+  ownerContact      String
+  siteAddress       String
+  latitude          Float
+  longitude         Float
+  status            String   @default("DRAFT")
+  needsContractor   Boolean?
+  quoteAcknowledged Boolean  @default(false)
+  selectedContractorId String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  documents Document[]
+  stages    StageProgress[]
+  inquiries ContractorInquiry[]
+}
+
+model Document {
+  id         String   @id @default(cuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploaderId String
+  uploader   User     @relation(fields: [uploaderId], references: [id])
+  docType    String
+  fileUrl    String
+  fileName   String
+  mimeType   String   @default("application/octet-stream")
+  version    Int      @default(1)
+  uploadedAt DateTime @default(now())
+}
+
+model StageProgress {
+  id             String   @id @default(cuid())
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  stageName      String
+  status         String   @default("PENDING")
+  remarks        String?
+  endorsedDocUrl String?
+  updatedAt      DateTime @updatedAt
+
+  @@unique([projectId, stageName])
+}
+
+model Contractor {
+  id               String  @id @default(cuid())
+  companyName      String
+  regNumber        String  @unique
+  phone            String
+  email            String
+  address          String
+  latitude         Float
+  longitude        Float
+  coverageRadiusKm Float   @default(20)
+  isActive         Boolean @default(true)
+  rating           Float   @default(0)
+  reviewCount      Int     @default(0)
+  badge            String?
+  specialties      String?
+
+  inquiries ContractorInquiry[]
+}
+
+model ContractorInquiry {
+  id           String     @id @default(cuid())
+  projectId    String
+  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  contractorId String
+  contractor   Contractor @relation(fields: [contractorId], references: [id])
+  message      String?
+  createdAt    DateTime   @default(now())
+
+  @@unique([projectId, contractorId])
+}
