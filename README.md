@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Konsultan.co
 
-## Getting Started
+House construction consultancy platform for the end-to-end workflow between a **homeowner** and a **consultant**: document intake, quotation & surat lantikan, multi-stage endorsements, then 20 km contractor matching.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js 15 App Router + TypeScript
+- Tailwind CSS + shadcn/ui + Lucide
+- Firebase Auth, Cloud Firestore, and Firebase Storage
+- React Server Components and Server Actions
+- Cookie-based RBAC (`HOMEOWNER` | `CONSULTANT`) via Firebase session cookies
+
+## Firebase setup
+
+1. Create a Firebase project and enable **Authentication** (Email/Password), **Firestore**, and **Storage**.
+2. Project settings → General → copy the **Web API key** and project ID.
+3. Project settings → Service accounts → **Generate new private key**. Save it as `service-account.json` in the repo root (gitignored).
+4. Storage → copy the bucket name (e.g. `your-project-id.appspot.com`).
+5. Copy `.env.example` to `.env` and fill in:
+
+```env
+FIREBASE_PROJECT_ID="your-project-id"
+FIREBASE_WEB_API_KEY="your-web-api-key"
+FIREBASE_STORAGE_BUCKET="your-project-id.appspot.com"
+FIREBASE_SERVICE_ACCOUNT_PATH="./service-account.json"
+APP_BASE_URL="http://localhost:3000"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Deploy `firestore.rules` (deny all client access — the app uses the Admin SDK) and `storage.rules`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run db:seed
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000).
 
-To learn more about Next.js, take a look at the following resources:
+### Demo accounts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Role | Email | Password |
+| --- | --- | --- |
+| Homeowner | ahmad@example.com | demo123 |
+| Consultant | admin@konsultan.co | demo123 |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Portals
 
-## Deploy on Vercel
+- `/homeowner` — project submission, stepper, endorsed downloads, contractor radius
+- `/consultant` — project review, quotation uploads, stage pipeline, contractor directory
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Geolocation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`src/lib/geo.ts` implements the Haversine formula and filters contractors to 20 km of the project pin. Seed data includes KL/Selangor builders plus a Johor listing that should fall outside a Bangsar/Damansara radius.

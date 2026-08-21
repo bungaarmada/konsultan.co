@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Konsultan.co — House construction consultancy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Figtree:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --background: #f6f3ee;
+        --foreground: #1c1915;
+        --card: #fffcf7;
+        --primary: #1f4d45;
+        --primary-foreground: #f4efe6;
+        --muted: #efe8dc;
+        --muted-foreground: #6b6358;
+        --accent: #b56a2b;
+        --border: #ddd4c6;
+        --radius: 0.75rem;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border-color: var(--border);
+      }
+
+      body {
+        background: var(--background);
+        color: var(--foreground);
+        font-family: "Figtree", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+      }
+
+      .font-heading {
+        font-family: "Fraunces", Georgia, serif;
+      }
+
+      .blueprint-grid {
+        background-image:
+          linear-gradient(to right, rgba(31, 77, 69, 0.06) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(31, 77, 69, 0.06) 1px, transparent 1px);
+        background-size: 32px 32px;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .container {
+        max-width: 72rem;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* Header */
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.5rem;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .logo svg {
+        width: 1.5rem;
+        height: 1.5rem;
+        color: var(--accent);
+      }
+
+      .logo span {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 1.25rem;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      /* Buttons (static, non-interactive) */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius);
+        font-size: 0.875rem;
+        font-weight: 500;
+        font-family: inherit;
+        border: 1px solid transparent;
+        cursor: default;
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: var(--foreground);
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: var(--primary-foreground);
+      }
+
+      .btn-outline {
+        background: transparent;
+        border-color: var(--border);
+        color: var(--foreground);
+      }
+
+      .btn-lg {
+        padding: 0.625rem 1.25rem;
+        font-size: 1rem;
+      }
+
+      /* Hero */
+      .hero {
+        display: grid;
+        gap: 3rem;
+        padding: 5rem 1.5rem;
+      }
+
+      @media (min-width: 1024px) {
+        .hero {
+          grid-template-columns: 1fr 1fr;
+          align-items: center;
+        }
+      }
+
+      .eyebrow {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--accent);
+      }
+
+      .hero h1 {
+        font-family: "Fraunces", Georgia, serif;
+        margin-top: 1rem;
+        font-size: 2.25rem;
+        line-height: 1.2;
+        color: var(--primary);
+      }
+
+      @media (min-width: 768px) {
+        .hero h1 {
+          font-size: 3rem;
+        }
+      }
+
+      .hero-desc {
+        margin-top: 1.25rem;
+        max-width: 36rem;
+        color: var(--muted-foreground);
+        line-height: 1.6;
+      }
+
+      .hero-actions {
+        margin-top: 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      /* Pipeline card */
+      .pipeline-card {
+        border-radius: 1rem;
+        border: 1px solid var(--border);
+        background: var(--card);
+        padding: 1.5rem;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      }
+
+      .pipeline-card > p {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--primary);
+      }
+
+      .pipeline-list {
+        list-style: none;
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .pipeline-list li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 0.5rem;
+        background: rgba(239, 232, 220, 0.6);
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+      }
+
+      .pipeline-list li span:last-child {
+        font-size: 0.75rem;
+        color: var(--muted-foreground);
+      }
+
+      /* Steps */
+      .steps {
+        display: grid;
+        gap: 1.5rem;
+        padding: 4rem 1.5rem;
+      }
+
+      @media (min-width: 640px) {
+        .steps {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .steps {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      .step-card {
+        border-radius: 0.75rem;
+        border: 1px solid var(--border);
+        background: var(--card);
+        padding: 1.25rem;
+      }
+
+      .step-num {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 1.875rem;
+        color: rgba(181, 106, 43, 0.8);
+      }
+
+      .step-card h2 {
+        font-family: "Fraunces", Georgia, serif;
+        margin-top: 0.75rem;
+        font-size: 1.125rem;
+      }
+
+      .step-card p {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+        line-height: 1.5;
+      }
+
+      /* Features */
+      .features {
+        border-top: 1px solid var(--border);
+        background: var(--primary);
+        color: var(--primary-foreground);
+        padding: 3.5rem 1.5rem;
+      }
+
+      .features-grid {
+        display: grid;
+        gap: 2rem;
+      }
+
+      @media (min-width: 768px) {
+        .features-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .feature-item {
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      .feature-item svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        color: var(--accent);
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+      }
+
+      .feature-item p:first-of-type {
+        font-weight: 500;
+      }
+
+      .feature-item p:last-of-type {
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: rgba(244, 239, 230, 0.7);
+        line-height: 1.5;
+      }
+
+      /* Footer */
+      footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 2rem 1.5rem;
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+      }
+
+      .footer-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .footer-brand svg {
+        width: 1rem;
+        height: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="container">
+      <div class="logo">
+        <!-- HardHat icon (logo mark) -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z"/>
+          <path d="M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5"/>
+          <path d="M4 15v-3a6 6 0 0 1 6-6h0"/>
+          <path d="M14 6h0a6 6 0 0 1 6 6v3"/>
+        </svg>
+        <span>Konsultan.co</span>
+      </div>
+      <div class="header-actions">
+        <span class="btn btn-ghost">Sign in</span>
+        <span class="btn btn-primary">Open portal</span>
+      </div>
+    </header>
+
+    <section class="blueprint-grid">
+      <div class="container hero">
+        <div>
+          <p class="eyebrow">House construction consultancy</p>
+          <h1>From geran to ground-breaking, with every endorsement in view.</h1>
+          <p class="hero-desc">
+            Konsultan.co is the working desk between homeowners and consultants — document
+            intake, quotation, Arkitek / C&amp;S / Majlis / PPSA tracking, then certified contractors
+            inside a 20 km radius.
+          </p>
+          <div class="hero-actions">
+            <span class="btn btn-primary btn-lg">
+              Enter as homeowner
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+              </svg>
+            </span>
+            <span class="btn btn-outline btn-lg">Consultant desk</span>
+          </div>
+        </div>
+        <div class="pipeline-card">
+          <p>Live pipeline</p>
+          <ul class="pipeline-list">
+            <li><span>Submission</span><span>Complete</span></li>
+            <li><span>Consultant review</span><span>Quotation issued</span></li>
+            <li><span>Arkitek</span><span>Approved</span></li>
+            <li><span>C&amp;S</span><span>In progress</span></li>
+            <li><span>Majlis</span><span>Pending</span></li>
+            <li><span>PPSA</span><span>Pending</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="container steps">
+      <div class="step-card">
+        <p class="step-num">01</p>
+        <h2>Submit documents</h2>
+        <p>Geran tanah, IC, and pelan tapak in one intake.</p>
+      </div>
+      <div class="step-card">
+        <p class="step-num">02</p>
+        <h2>Quotation &amp; lantikan</h2>
+        <p>Review fees and acknowledge your appointment letter.</p>
+      </div>
+      <div class="step-card">
+        <p class="step-num">03</p>
+        <h2>Endorsement pipeline</h2>
+        <p>Track Arkitek, C&amp;S, Majlis, and PPSA with live badges.</p>
+      </div>
+      <div class="step-card">
+        <p class="step-num">04</p>
+        <h2>Match contractors</h2>
+        <p>Certified builders within 20 km of your site coordinates.</p>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="container features-grid">
+        <div class="feature-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+            <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+            <path d="m9 15 2 2 4-4"/>
+          </svg>
+          <div>
+            <p>Role-based portals</p>
+            <p>Homeowner and consultant desks, isolated by RBAC.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+          <div>
+            <p>Endorsement trail</p>
+            <p>PENDING, IN_PROGRESS, REVISION_NEEDED, APPROVED.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <div>
+            <p>Haversine matching</p>
+            <p>Contractors filtered to 20 km of the project pin.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="container">
+      <span class="footer-brand">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+        </svg>
+        Konsultan.co
+      </span>
+      <span>Demo accounts on the sign-in page</span>
+    </footer>
+  </body>
+</html>

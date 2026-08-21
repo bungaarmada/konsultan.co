@@ -1,102 +1,121 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, Compass, FileCheck2, HardHat, MapPinned, ShieldCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export default function Home() {
+const steps = [
+  { title: "Submit documents", body: "Geran tanah, IC, and pelan tapak in one intake." },
+  { title: "Quotation & lantikan", body: "Review fees and acknowledge your appointment letter." },
+  { title: "Endorsement pipeline", body: "Track Arkitek, C&S, Majlis, and PPSA with live badges." },
+  { title: "Match contractors", body: "Certified builders within 20 km of your site coordinates." },
+];
+
+export default function LandingPage() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-background">
+      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+        <div className="flex items-center gap-2">
+          <HardHat className="h-6 w-6 text-accent" />
+          <span className="font-heading text-xl">Konsultan.co</span>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+        <div className="flex gap-2">
+          <Button asChild variant="ghost">
+            <Link href="/login">Sign in</Link>
+          </Button>
+          <Button asChild>
+            <Link href="/login">Open portal</Link>
+          </Button>
+        </div>
+      </header>
+
+      <section className="blueprint-grid border-y border-border">
+        <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-2 lg:items-center">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+              House construction consultancy
+            </p>
+            <h1 className="font-heading mt-4 text-4xl leading-tight text-primary md:text-5xl">
+              From geran to ground-breaking, with every endorsement in view.
+            </h1>
+            <p className="mt-5 max-w-xl text-muted-foreground">
+              Konsultan.co is the working desk between homeowners and consultants — document
+              intake, quotation, Arkitek / C&S / Majlis / PPSA tracking, then certified contractors
+              inside a 20 km radius.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button asChild size="lg">
+                <Link href="/login">
+                  Enter as homeowner
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/login">Consultant desk</Link>
+              </Button>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <p className="text-sm font-medium text-primary">Live pipeline</p>
+            <ul className="mt-4 space-y-3">
+              {[
+                ["Submission", "Complete"],
+                ["Consultant review", "Quotation issued"],
+                ["Arkitek", "Approved"],
+                ["C&S", "In progress"],
+                ["Majlis", "Pending"],
+                ["PPSA", "Pending"],
+              ].map(([label, status]) => (
+                <li key={label} className="flex items-center justify-between rounded-lg bg-muted/60 px-3 py-2 text-sm">
+                  <span>{label}</span>
+                  <span className="text-xs text-muted-foreground">{status}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-6xl gap-6 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
+        {steps.map((step, index) => (
+          <div key={step.title} className="rounded-xl border border-border bg-card p-5">
+            <p className="font-heading text-3xl text-accent/80">0{index + 1}</p>
+            <h2 className="mt-3 font-heading text-lg">{step.title}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">{step.body}</p>
+          </div>
+        ))}
+      </section>
+
+      <section className="border-t border-border bg-primary text-primary-foreground">
+        <div className="mx-auto grid max-w-6xl gap-8 px-6 py-14 md:grid-cols-3">
+          <div className="flex gap-3">
+            <FileCheck2 className="h-5 w-5 text-accent" />
+            <div>
+              <p className="font-medium">Role-based portals</p>
+              <p className="mt-1 text-sm text-primary-foreground/70">Homeowner and consultant desks, isolated by RBAC.</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <ShieldCheck className="h-5 w-5 text-accent" />
+            <div>
+              <p className="font-medium">Endorsement trail</p>
+              <p className="mt-1 text-sm text-primary-foreground/70">PENDING, IN_PROGRESS, REVISION_NEEDED, APPROVED.</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <MapPinned className="h-5 w-5 text-accent" />
+            <div>
+              <p className="font-medium">Haversine matching</p>
+              <p className="mt-1 text-sm text-primary-foreground/70">Contractors filtered to 20 km of the project pin.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className="mx-auto flex max-w-6xl items-center justify-between px-6 py-8 text-sm text-muted-foreground">
+        <span className="flex items-center gap-2">
+          <Compass className="h-4 w-4" />
+          Konsultan.co
+        </span>
+        <span>Demo accounts on the sign-in page</span>
       </footer>
     </div>
   );

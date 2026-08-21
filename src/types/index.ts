@@ -1,6 +1,11 @@
 export type UserRole = "HOMEOWNER" | "CONSULTANT";
 
-export type ProjectStatus = "DRAFT" | "IN_REVIEW" | "IN_ENDORSEMENT" | "COMPLETED";
+export type ProjectStatus =
+  | "DRAFT"
+  | "IN_REVIEW"
+  | "IN_PROGRESS"
+  | "PAYMENT_PENDING"
+  | "COMPLETED";
 
 export type DocType =
   | "INITIAL_GERAN"
@@ -8,22 +13,43 @@ export type DocType =
   | "INITIAL_SITE_PLAN"
   | "QUOTATION"
   | "SURAT_LANTIKAN"
-  | "ARKITEK_DRAWING"
-  | "CS_PLAN"
-  | "MAJLIS_APPROVAL"
-  | "PPSA_DOC";
+  | "INVOICE"
+  | "FINAL_DESIGN_DRAWING"
+  | "BORANG_B"
+  | "CCC";
 
-export type StageName = "ARKITEK" | "CS" | "MAJLIS" | "PPSA";
+export type StageName =
+  | "SCHEMATIC"
+  | "DESIGN_DEV"
+  | "CONTRACT_DOC"
+  | "CONTRACT_IMPL";
 
-export type StageStatus = "PENDING" | "IN_PROGRESS" | "REVISION_NEEDED" | "APPROVED";
+export type StageStatus =
+  | "DRAFT"
+  | "PENDING_REVIEW"
+  | "PENDING_SIGNATURE"
+  | "PAYMENT_PENDING"
+  | "IN_PROGRESS"
+  | "REVISION_NEEDED"
+  | "APPROVED"
+  | "COMPLETED";
+
+export type InvoiceStatus = "DRAFT" | "ISSUED" | "PENDING_PAYMENT" | "PAID" | "CANCELLED";
+
+export type PaymentMilestoneKey =
+  | "P1_APPOINTMENT"
+  | "P2_DESIGN_APPROVAL"
+  | "P2_SUBMISSION"
+  | "P3_BORANG_B"
+  | "P4_CONSTRUCTION_50";
 
 export type WorkflowStep =
   | "SUBMISSION"
   | "CONSULTANT_REVIEW"
-  | "ARKITEK"
-  | "CS"
-  | "MAJLIS"
-  | "PPSA"
+  | "SCHEMATIC"
+  | "DESIGN_DEV"
+  | "CONTRACT_DOC"
+  | "CONTRACT_IMPL"
   | "CONTRACTOR";
 
 export interface SessionUser {
@@ -57,15 +83,20 @@ export interface ContractorWithDistance {
   distanceKm: number;
 }
 
-export const STAGE_ORDER: StageName[] = ["ARKITEK", "CS", "MAJLIS", "PPSA"];
+export const STAGE_ORDER: StageName[] = [
+  "SCHEMATIC",
+  "DESIGN_DEV",
+  "CONTRACT_DOC",
+  "CONTRACT_IMPL",
+];
 
 export const WORKFLOW_STEPS: { key: WorkflowStep; label: string; malay: string }[] = [
   { key: "SUBMISSION", label: "Submission", malay: "Penyerahan" },
   { key: "CONSULTANT_REVIEW", label: "Consultant Review", malay: "Semakan Konsultan" },
-  { key: "ARKITEK", label: "Arkitek", malay: "Lukisan Senibina" },
-  { key: "CS", label: "C&S", malay: "Kejuruteraan Awam" },
-  { key: "MAJLIS", label: "Majlis", malay: "Kelulusan Pihak Berkuasa" },
-  { key: "PPSA", label: "PPSA / Utility", malay: "Utiliti" },
+  { key: "SCHEMATIC", label: "Schematic Design", malay: "Rekabentuk Skematik" },
+  { key: "DESIGN_DEV", label: "Design Development", malay: "Pembangunan Rekabentuk" },
+  { key: "CONTRACT_DOC", label: "Contract Documentation", malay: "Dokumentasi Kontrak" },
+  { key: "CONTRACT_IMPL", label: "Contract Implementation", malay: "Pelaksanaan Kontrak" },
   { key: "CONTRACTOR", label: "Contractor", malay: "Kontraktor" },
 ];
 
@@ -75,35 +106,41 @@ export const INITIAL_DOC_TYPES: { type: DocType; label: string; malay: string }[
   { type: "INITIAL_SITE_PLAN", label: "Site Plan", malay: "Pelan Tapak" },
 ];
 
-export const STAGE_DOC_TYPE: Record<StageName, DocType> = {
-  ARKITEK: "ARKITEK_DRAWING",
-  CS: "CS_PLAN",
-  MAJLIS: "MAJLIS_APPROVAL",
-  PPSA: "PPSA_DOC",
+export const STAGE_DOC_TYPE: Record<StageName, DocType | DocType[]> = {
+  SCHEMATIC: ["QUOTATION", "SURAT_LANTIKAN", "INVOICE"],
+  DESIGN_DEV: "FINAL_DESIGN_DRAWING",
+  CONTRACT_DOC: "BORANG_B",
+  CONTRACT_IMPL: "CCC",
 };
 
 export const STAGE_META: Record<
   StageName,
-  { label: string; full: string; description: string }
+  { label: string; full: string; description: string; malay: string }
 > = {
-  ARKITEK: {
-    label: "Arkitek",
-    full: "Full Detailed Architectural Drawing",
-    description: "Endorsed architectural drawings and building plans.",
+  SCHEMATIC: {
+    label: "Peringkat 1",
+    full: "Schematic Design Phase",
+    malay: "Fasa Rekabentuk Skematik",
+    description:
+      "Site analysis, preliminary design, Surat Lantikan, Quotation, and appointment invoice.",
   },
-  CS: {
-    label: "C&S",
-    full: "Civil & Structural Engineering",
-    description: "Structural calculations, foundation and framing plans.",
+  DESIGN_DEV: {
+    label: "Peringkat 2",
+    full: "Design Development Phase",
+    malay: "Fasa Pembangunan Rekabentuk",
+    description:
+      "Final design drawings, working drawings, and PBT submission (two milestone invoices).",
   },
-  MAJLIS: {
-    label: "Majlis",
-    full: "Local Council / Authority Approval",
-    description: "Local authority (PBT) planning and building approval.",
+  CONTRACT_DOC: {
+    label: "Peringkat 3",
+    full: "Contract Documentation Phase",
+    malay: "Fasa Dokumentasi Kontrak",
+    description: "Authority approval, Borang B, homeowner signature, and contractor preference.",
   },
-  PPSA: {
-    label: "PPSA / Utility",
-    full: "PPSA & Utility Endorsement",
-    description: "Utility connections and PPSA-related endorsements.",
+  CONTRACT_IMPL: {
+    label: "Peringkat 4",
+    full: "Contract Implementation & Management Phase",
+    malay: "Fasa Pelaksanaan & Pengurusan Kontrak",
+    description: "Site supervision milestones and CCC at 50% construction completion.",
   },
 };

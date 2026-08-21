@@ -33,9 +33,17 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# firebase service accounts
+service-account.json
+*-firebase-adminsdk-*.json
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# uploads
+/public/uploads/**
+!/public/uploads/.gitkeep

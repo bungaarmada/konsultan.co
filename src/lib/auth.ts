@@ -1,21 +1,60 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { adminAuth, firebaseWebApiKey } from "@/lib/firebase";
+import { getUser } from "@/lib/db";
 import { SESSION_COOKIE } from "@/lib/constants";
 import type { SessionUser, UserRole } from "@/types";
 
+const SESSION_MS = 1000 * 60 * 60 * 24 * 14;
+
+type SignInResult = {
+  idToken: string;
+  localId: string;
+};
+
+export async function signInWithPassword(email: string, password: string): Promise<SignInResult | null> {
+  const response = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebaseWebApiKey()}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, returnSecureToken: true }),
+    },
+  );
+  if (!response.ok) return null;
+  const data = (await response.json()) as { idToken?: string; localId?: string };
+  if (!data.idToken || !data.localId) return null;
+  return { idToken: data.idToken, localId: data.localId };
+}
+
 export async function getSessionUser(): Promise<SessionUser | null> {
   const store = await cookies();
-  const userId = store.get(SESSION_COOKIE)?.value;
-  if (!userId) return null;
+  const session = store.get(SESSION_COOKIE)?.value;
+  if (!session) return null;
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true, name: true, email: true, role: true, phone: true },
-  });
-
-  if (!user) return null;
-  return { ...user, role: user.role as UserRole };
+  try {
+    const decoded = await adminAuth().verifySessionCookie(session, true);
+    const profile = await getUser(decoded.uid);
+    const claimRole = decoded.role === "CONSULTANT" ? "CONSULTANT" : "HOMEOWNER";
+    if (profile) {
+      return {
+        id: profile.id,
+        name: profile.name,
+        email: profile.email,
+        role: profile.role,
+        phone: profile.phone,
+      };
+    }
+    return {
+      id: decoded.uid,
+      name: decoded.name ?? decoded.email ?? "User",
+      email: decoded.email ?? "",
+      role: claimRole,
+      phone: null,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export async function requireUser(role?: UserRole): Promise<SessionUser> {
@@ -27,13 +66,15 @@ export async function requireUser(role?: UserRole): Promise<SessionUser> {
   return user;
 }
 
-export async function setSession(userId: string) {
+export async function setSessionFromIdToken(idToken: string) {
+  const sessionCookie = await adminAuth().createSessionCookie(idToken, { expiresIn: SESSION_MS });
   const store = await cookies();
-  store.set(SESSION_COOKIE, userId, {
+  store.set(SESSION_COOKIE, sessionCookie, {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 14,
+    maxAge: SESSION_MS / 1000,
+    secure: process.env.NODE_ENV === "production",
   });
 }
 
