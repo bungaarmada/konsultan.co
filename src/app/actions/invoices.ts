@@ -101,24 +101,14 @@ export async function markInvoicePaidAction(invoiceId: string) {
   await markInvoicePaidById(invoiceId);
 }
 
-export async function markInvoicePaidById(invoiceId: string) {
+export async function markInvoicePaidById(invoiceId: string, options?: { skipRevalidate?: boolean }) {
   const invoice = await getInvoice(invoiceId);
   if (!invoice || invoice.status === "PAID") return;
 
   await updateInvoice(invoiceId, { status: "PAID", paidAt: new Date() });
 
-  const stageMilestones = PAYMENT_MILESTONES.filter((m) => m.stageName === invoice.stageName);
+  // Do not auto-approve the stage on payment — consultant marks status after work is done.
   const refreshed = await listInvoicesByProject(invoice.projectId);
-  const stagePaid = stageMilestones.every((m) =>
-    refreshed.some(
-      (inv) => inv.milestoneKey === m.key && (inv.id === invoiceId || inv.status === "PAID"),
-    ),
-  );
-
-  if (stagePaid) {
-    await updateStage(invoice.projectId, invoice.stageName, { status: "APPROVED" });
-  }
-
   const unpaid = refreshed.some(
     (inv) => inv.id !== invoiceId && inv.status === "PENDING_PAYMENT",
   );
@@ -126,6 +116,7 @@ export async function markInvoicePaidById(invoiceId: string) {
     status: unpaid ? "PAYMENT_PENDING" : "IN_PROGRESS",
   });
 
+  if (options?.skipRevalidate) return;
   revalidatePath(`/consultant/projects/${invoice.projectId}`);
   revalidatePath(`/homeowner/projects/${invoice.projectId}`);
   revalidatePath("/consultant");

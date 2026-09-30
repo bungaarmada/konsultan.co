@@ -29,7 +29,9 @@ export function ProjectTimeline({ current }: { current: WorkflowStep }) {
             </div>
             <div className="pb-6">
               <p className={cn("text-sm font-medium", active && "text-accent")}>{step.label}</p>
-              <p className="text-xs text-muted-foreground">{step.malay}</p>
+              {step.malay !== step.label ? (
+                <p className="text-xs text-muted-foreground">{step.malay}</p>
+              ) : null}
             </div>
           </li>
         );

@@ -2,6 +2,7 @@
 
 import { STAGE_META, type StageName, type StageStatus } from "@/types";
 import { STAGE_STATUS_OPTIONS } from "@/lib/workflow";
+import { STAGE_STATUS_SELECT_LABEL } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,7 +46,7 @@ export function StageApprovalForm({
         </div>
         <StageStatusBadge status={current} />
       </div>
-      <p className="text-sm text-muted-foreground">{meta.description}</p>
+      <p className="text-sm text-muted-foreground">{meta.descriptionItems.join(" ")}</p>
       {locked ? (
         <p className="text-xs text-amber-700">Complete the previous stage before updating this one.</p>
       ) : null}
@@ -61,24 +62,24 @@ export function StageApprovalForm({
         >
           {STAGE_STATUS_OPTIONS.map((option) => (
             <option key={option} value={option}>
-              {option.replace("_", " ")}
+              {STAGE_STATUS_SELECT_LABEL[option]}
             </option>
           ))}
         </select>
       </div>
       <div className="space-y-2">
-        <Label htmlFor={`remarks-${stageName}`}>Notes / remarks</Label>
+        <Label htmlFor={`remarks-${stageName}`}>Remarks</Label>
         <Textarea
           id={`remarks-${stageName}`}
           name="remarks"
           disabled={locked}
           defaultValue={remarks ?? ""}
-          placeholder="Internal and homeowner-visible notes"
+          placeholder="Internal notes visible to the homeowner"
         />
       </div>
       <DocumentUploadCard
         name="endorsedFile"
-        title="Endorsed file"
+        title="Endorsed document"
         subtitle="PDF or image"
         existing={endorsedDocUrl ? { fileName: "Endorsed document", fileUrl: endorsedDocUrl } : null}
         readOnly={locked}

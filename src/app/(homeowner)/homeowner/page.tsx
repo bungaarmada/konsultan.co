@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { Plus, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { listProjectRows } from "@/lib/db";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProjectStatusBadge } from "@/components/shared/StageStatusBadge";
 import { formatDate } from "@/lib/utils";
@@ -15,26 +14,14 @@ export default async function HomeownerDashboard() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-sm text-muted-foreground">Homeowner portal</p>
-          <h1 className="font-heading text-3xl text-primary">Your projects</h1>
-        </div>
-        <Button asChild>
-          <Link href="/homeowner/projects/new">
-            <Plus className="h-4 w-4" />
-            New project
-          </Link>
-        </Button>
-      </div>
+      <h1 className="font-heading text-3xl text-primary">Your projects</h1>
 
       {projects.length === 0 ? (
         <Card>
           <CardContent className="p-10 text-center">
-            <p className="text-muted-foreground">No projects yet. Submit your first site pack to begin.</p>
-            <Button asChild className="mt-4">
-              <Link href="/homeowner/projects/new">Create project</Link>
-            </Button>
+            <p className="text-muted-foreground">
+              No projects yet. Projects will appear here once your consultant starts one.
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -49,17 +36,17 @@ export default async function HomeownerDashboard() {
               <Link key={project.id} href={`/homeowner/projects/${project.id}`}>
                 <Card className="transition-colors hover:border-primary/40">
                   <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="font-heading text-lg">{project.title}</p>
+                    <div className="min-w-0">
+                      <p className="truncate font-heading text-lg">{project.title}</p>
                       <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5" />
-                        {project.siteAddress}
+                        <MapPin className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate">{project.siteAddress}</span>
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Updated {formatDate(project.updatedAt)} · {approved}/4 endorsements
+                        Updated {formatDate(project.updatedAt)} · {approved}/4 stages approved
                       </p>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex shrink-0 items-center gap-3">
                       <span className="text-xs text-muted-foreground">{label}</span>
                       <ProjectStatusBadge status={project.status as ProjectStatus} />
                     </div>

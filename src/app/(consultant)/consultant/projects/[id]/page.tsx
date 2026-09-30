@@ -1,18 +1,16 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { getProjectDetail } from "@/lib/db";
-import { DocumentList } from "@/components/shared/DocumentList";
-import { ProjectTimeline } from "@/components/shared/ProjectTimeline";
+import { ProjectStepper } from "@/components/homeowner/ProjectStepper";
 import { ProjectStatusBadge } from "@/components/shared/StageStatusBadge";
 import { StageAccordion } from "@/components/shared/StageAccordion";
+import { ConsultantStageDocUpload } from "@/components/consultant/ConsultantStageDocUpload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { currentWorkflowStep } from "@/lib/workflow";
+import { currentWorkflowStep, hasIntakeDocuments } from "@/lib/workflow";
 import { formatRm } from "@/lib/billing";
-import { submitProjectAction, updateProjectFeeAction } from "@/app/actions/projects";
-import type { ProjectStatus } from "@/types";
+import { INITIAL_DOC_TYPES, type ProjectStatus } from "@/types";
 
 export default async function ConsultantProjectPage({
   params,
@@ -27,10 +25,9 @@ export default async function ConsultantProjectPage({
   const project = await getProjectDetail(id);
   if (!project) notFound();
 
-  const initial = project.documents.filter((d) =>
-    ["INITIAL_GERAN", "INITIAL_IC", "INITIAL_SITE_PLAN"].includes(d.docType),
-  );
   const step = currentWorkflowStep(project);
+  const intakeReady = hasIntakeDocuments(project.documents);
+  const waitingForIntake = project.status === "DRAFT" && !intakeReady;
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
@@ -54,73 +51,68 @@ export default async function ConsultantProjectPage({
         </p>
       ) : null}
 
+      {waitingForIntake ? (
+        <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          Waiting for the homeowner to upload geran, IC, and site plan. Share their portal login if
+          they have not signed in yet.
+        </p>
+      ) : null}
+
+      <Card>
+        <CardContent className="pt-6">
+          <ProjectStepper current={step} />
+        </CardContent>
+      </Card>
+
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Submitted intake</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <DocumentList documents={initial} />
-              {project.status === "DRAFT" ? (
-                <form action={submitProjectAction.bind(null, project.id)}>
-                  <Button type="submit">Move to review</Button>
-                </form>
-              ) : null}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Fee schedule</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form action={updateProjectFeeAction} className="flex flex-wrap items-end gap-3">
-                <input type="hidden" name="projectId" value={project.id} />
-                <div className="space-y-1">
-                  <Label htmlFor="totalFee">Total fee (RM)</Label>
-                  <Input
-                    id="totalFee"
-                    name="totalFee"
-                    type="number"
-                    min={1}
-                    step="0.01"
-                    defaultValue={project.totalFee}
-                  />
-                </div>
-                <Button type="submit" variant="outline">
-                  Update fee
-                </Button>
-              </form>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Percentages stay fixed across five billing milestones (Phase 2 has two invoices).
-              </p>
-            </CardContent>
-          </Card>
-
-          <div>
-            <h2 className="font-heading mb-4 text-xl">Peringkat / Stages</h2>
-            <StageAccordion
-              role="CONSULTANT"
-              projectId={project.id}
-              totalFee={project.totalFee}
-              suratSigned={project.suratLantikanSigned}
-              stages={project.stages}
-              documents={project.documents}
-              invoices={project.invoices}
-              defaultOpen={typeof step === "string" ? step : undefined}
-            />
-          </div>
+          {waitingForIntake ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Waiting for homeowner documents</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <p className="text-muted-foreground">
+                  This project stays in draft until the client uploads all three intake files.
+                </p>
+                <ul className="space-y-1">
+                  {INITIAL_DOC_TYPES.map((doc) => {
+                    const uploaded = project.documents.some((item) => item.docType === doc.type);
+                    return (
+                      <li key={doc.type} className={uploaded ? "text-emerald-700" : "text-muted-foreground"}>
+                        {uploaded ? "Uploaded" : "Requested"} · {doc.label}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </CardContent>
+            </Card>
+          ) : (
+            <div>
+              <h2 className="font-heading mb-3 text-xl">Stages</h2>
+              <StageAccordion
+                role="CONSULTANT"
+                projectId={project.id}
+                totalFee={project.totalFee}
+                suratSigned={project.suratLantikanSigned}
+                stages={project.stages}
+                documents={project.documents}
+                invoices={project.invoices}
+                defaultOpen={typeof step === "string" ? step : undefined}
+              />
+            </div>
+          )}
         </div>
+
         <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Progress</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ProjectTimeline current={step} />
-            </CardContent>
-          </Card>
+          {waitingForIntake ? null : <ConsultantStageDocUpload projectId={project.id} />}
+
+          <Button asChild variant="outline" className="w-full">
+            <Link href={`/consultant/projects/${project.id}/documents`}>
+              View submitted documents here
+            </Link>
+          </Button>
+
           <Card>
             <CardHeader>
               <CardTitle>Owner</CardTitle>
@@ -131,6 +123,9 @@ export default async function ConsultantProjectPage({
               <p className="text-muted-foreground">{project.ownerContact}</p>
               <p className="text-muted-foreground">
                 {project.latitude.toFixed(5)}, {project.longitude.toFixed(5)}
+              </p>
+              <p className="text-muted-foreground">
+                LPPSA: {project.usesLppsa ? "Yes" : "No"}
               </p>
             </CardContent>
           </Card>

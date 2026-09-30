@@ -42,6 +42,17 @@ export const INVOICE_STATUS_LABEL: Record<InvoiceStatus, string> = {
   CANCELLED: "Cancelled",
 };
 
+export const STAGE_STATUS_SELECT_LABEL: Record<StageStatus, string> = {
+  DRAFT: "Draft",
+  PENDING_REVIEW: "Pending Review",
+  PENDING_SIGNATURE: "Pending Signature",
+  PAYMENT_PENDING: "Payment Pending",
+  IN_PROGRESS: "In Progress",
+  REVISION_NEEDED: "Revision Needed",
+  APPROVED: "Approved",
+  COMPLETED: "Completed",
+};
+
 export const DEMO_ACCOUNTS = [
   {
     email: "ahmad@example.com",

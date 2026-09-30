@@ -1,5 +1,6 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { StageStatusBadge } from "@/components/shared/StageStatusBadge";
 import { DocumentList } from "@/components/shared/DocumentList";
@@ -11,11 +12,14 @@ import { SignaturePad } from "@/components/shared/SignaturePad";
 import { Input } from "@/components/ui/input";
 import { STAGE_META, STAGE_ORDER, type StageName, type StageStatus, type UserRole } from "@/types";
 import { formatRm, milestonesForStage } from "@/lib/billing";
-import { canGenerateInvoice, isStageActionable, STAGE_STATUS_OPTIONS } from "@/lib/workflow";
-import { INVOICE_STATUS_LABEL } from "@/lib/constants";
+import { documentsForStage } from "@/lib/stage-documents";
+import { canGenerateInvoice, isStageActionable, stageIsDone, STAGE_STATUS_OPTIONS } from "@/lib/workflow";
+import { INVOICE_STATUS_LABEL, STAGE_STATUS_SELECT_LABEL } from "@/lib/constants";
+import { cn, formatDateTime } from "@/lib/utils";
 import { generateAppointmentDocsAction, requestSignatureAction, updateStageAction } from "@/app/actions/consultant";
 import { generateInvoiceAction, markInvoicePaidAction } from "@/app/actions/invoices";
-import { signBorangBAction, signSuratLantikanAction } from "@/app/actions/signatures";
+import { uploadSignedBorangBAction } from "@/app/actions/projects";
+import { signSuratLantikanAction } from "@/app/actions/signatures";
 import { startInvoicePaymentAction } from "@/app/actions/payments";
 
 type DocRow = {
@@ -38,6 +42,7 @@ type InvoiceRow = {
   status: string;
   invoiceNumber: string;
   billplzUrl: string | null;
+  paidAt?: Date | null;
 };
 
 type StageRow = {
@@ -72,8 +77,9 @@ export function StageAccordion({
         const meta = STAGE_META[stageName];
         const stage = stages.find((s) => s.stageName === stageName);
         const status = (stage?.status ?? "DRAFT") as StageStatus;
+        const done = stageIsDone(status);
         const actionable = isStageActionable(stageName, stages, invoices);
-        const stageDocs = documents.filter((d) => d.stageName === stageName || belongsToStage(d.docType, stageName));
+        const stageDocs = documentsForStage(stageName, documents);
         const stageInvoices = invoices.filter((inv) => inv.stageName === stageName);
         const milestones = milestonesForStage(stageName);
 
@@ -81,30 +87,45 @@ export function StageAccordion({
           <AccordionItem key={stageName} value={stageName}>
             <AccordionTrigger>
               <div className="flex flex-1 flex-wrap items-center gap-3 pr-2">
-                <div>
-                  <p className="font-heading text-base">{meta.label} · {meta.full}</p>
-                  <p className="text-xs font-normal text-muted-foreground">{meta.malay}</p>
+                <div className="min-w-0 flex-1 text-left">
+                  <p className="font-heading text-base">{meta.label}</p>
+                  <p className="text-xs font-normal text-muted-foreground">{meta.full}</p>
                 </div>
                 <StageStatusBadge status={status} />
+                <span
+                  className={cn(
+                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border",
+                    done
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-muted text-muted-foreground",
+                  )}
+                  aria-label={done ? "Complete" : "Incomplete"}
+                >
+                  {done ? <Check className="h-4 w-4" /> : null}
+                </span>
                 {!actionable ? (
-                  <span className="text-xs font-normal text-amber-700">Locked until previous payments clear</span>
+                  <span className="text-xs font-normal text-amber-700">Locked until previous stage clear</span>
                 ) : null}
               </div>
             </AccordionTrigger>
             <AccordionContent className="space-y-5">
-              <p className="text-sm text-muted-foreground">{meta.description}</p>
+              <ol className="list-decimal space-y-1.5 pl-5 text-sm text-muted-foreground">
+                {meta.descriptionItems.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ol>
 
               <div>
                 <h4 className="mb-2 text-sm font-semibold">Documents</h4>
                 {stageDocs.length ? (
                   <DocumentList documents={stageDocs} />
                 ) : (
-                  <p className="text-sm text-muted-foreground">No documents yet for this peringkat.</p>
+                  <p className="text-sm text-muted-foreground">No documents yet for this stage.</p>
                 )}
               </div>
 
               <div>
-                <h4 className="mb-2 text-sm font-semibold">Invoices</h4>
+                <h4 className="mb-2 text-sm font-semibold">Payments</h4>
                 <div className="space-y-3">
                   {milestones.map((m) => {
                     const inv = stageInvoices.find((i) => i.milestoneKey === m.key);
@@ -125,8 +146,13 @@ export function StageAccordion({
                             <p className="text-xs text-muted-foreground">{m.malay}</p>
                             <p className="mt-1 text-sm">{formatRm(amount)}</p>
                           </div>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-right text-xs text-muted-foreground">
                             {inv ? INVOICE_STATUS_LABEL[inv.status as keyof typeof INVOICE_STATUS_LABEL] ?? inv.status : "Not generated"}
+                            {inv?.status === "PAID" && inv.paidAt ? (
+                              <span className="mt-0.5 block text-emerald-700">
+                                Confirmed {formatDateTime(inv.paidAt)}
+                              </span>
+                            ) : null}
                           </span>
                         </div>
                         <div className="mt-3 flex flex-wrap gap-2">
@@ -180,7 +206,11 @@ export function StageAccordion({
               ) : null}
 
               {role === "HOMEOWNER" && stageName === "CONTRACT_DOC" ? (
-                <SignBorangPanel projectId={projectId} documents={stageDocs} />
+                <UploadSignedBorangPanel projectId={projectId} documents={documents} />
+              ) : null}
+
+              {role === "CONSULTANT" && stageName === "CONTRACT_DOC" ? (
+                <BorangBConsultantStatus documents={documents} />
               ) : null}
 
               {role === "CONSULTANT" ? (
@@ -218,14 +248,6 @@ export function StageAccordion({
   );
 }
 
-function belongsToStage(docType: string, stageName: StageName) {
-  if (stageName === "SCHEMATIC") return ["QUOTATION", "SURAT_LANTIKAN", "INVOICE"].includes(docType);
-  if (stageName === "DESIGN_DEV") return docType === "FINAL_DESIGN_DRAWING";
-  if (stageName === "CONTRACT_DOC") return docType === "BORANG_B";
-  if (stageName === "CONTRACT_IMPL") return docType === "CCC";
-  return false;
-}
-
 function SignSuratPanel({ projectId, documents }: { projectId: string; documents: DocRow[] }) {
   const surat = documents.find((d) => d.docType === "SURAT_LANTIKAN" && d.status !== "SIGNED");
   if (!surat) {
@@ -237,51 +259,132 @@ function SignSuratPanel({ projectId, documents }: { projectId: string; documents
       <input type="hidden" name="documentId" value={surat.id} />
       <h4 className="font-heading text-sm font-semibold">Sign Surat Lantikan</h4>
       <p className="text-xs text-muted-foreground">
-        Review the letter, then sign as pemilik and capture saksi details. Signatures are stamped onto the document.
+        Review the letter, then sign as owner and complete witness details. Signatures are stamped onto the document.
       </p>
       <Button asChild variant="outline" size="sm">
         <a href={surat.fileUrl} target="_blank" rel="noreferrer">
           Open draft letter
         </a>
       </Button>
-      <SignaturePad name="ownerSignatureDataUrl" label="Pemilik signature" />
+      <SignaturePad name="ownerSignatureDataUrl" label="Owner signature" />
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="space-y-1">
-          <Label htmlFor="witnessName">Saksi nama</Label>
+          <Label htmlFor="witnessName">Witness name</Label>
           <Input id="witnessName" name="witnessName" required />
         </div>
         <div className="space-y-1">
-          <Label htmlFor="witnessIc">Saksi IC</Label>
+          <Label htmlFor="witnessIc">Witness IC</Label>
           <Input id="witnessIc" name="witnessIc" />
         </div>
         <div className="space-y-1">
-          <Label htmlFor="witnessTitle">Jawatan</Label>
+          <Label htmlFor="witnessTitle">Title</Label>
           <Input id="witnessTitle" name="witnessTitle" />
         </div>
       </div>
-      <SignaturePad name="witnessSignatureDataUrl" label="Saksi signature" />
+      <SignaturePad name="witnessSignatureDataUrl" label="Witness signature" />
       <Button type="submit">Sign and submit</Button>
     </form>
   );
 }
 
-function SignBorangPanel({ projectId, documents }: { projectId: string; documents: DocRow[] }) {
-  const borang = documents.find((d) => d.docType === "BORANG_B" && d.status === "PENDING_SIGNATURE");
-  if (!borang) return null;
+function UploadSignedBorangPanel({
+  projectId,
+  documents,
+}: {
+  projectId: string;
+  documents: DocRow[];
+}) {
+  const borangDocs = documents
+    .filter((d) => d.docType === "BORANG_B")
+    .sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime());
+  const draft = borangDocs.find((d) => d.status === "PENDING_SIGNATURE");
+  const signed = borangDocs.find((d) => d.status === "SIGNED");
+
+  if (!draft && !signed) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Waiting for your consultant to upload Borang B for signing.
+      </p>
+    );
+  }
+
+  if (!draft && signed) {
+    return (
+      <div className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950">
+        <p className="font-medium">Signed Borang B submitted</p>
+        <p className="text-emerald-800">
+          Your consultant will review the signed copy. You can open it again below if needed.
+        </p>
+        <Button asChild variant="outline" size="sm">
+          <a href={signed.fileUrl} target="_blank" rel="noreferrer">
+            Open signed Borang B
+          </a>
+        </Button>
+      </div>
+    );
+  }
+
+  if (!draft) return null;
+
   return (
-    <form action={signBorangBAction} className="space-y-4 rounded-lg border border-border p-4">
+    <form action={uploadSignedBorangBAction} className="space-y-4 rounded-lg border border-border p-4">
       <input type="hidden" name="projectId" value={projectId} />
-      <input type="hidden" name="documentId" value={borang.id} />
-      <h4 className="font-heading text-sm font-semibold">Sign Borang B</h4>
-      <Button asChild variant="outline" size="sm">
-        <a href={borang.fileUrl} target="_blank" rel="noreferrer">
-          Open Borang B
-        </a>
-      </Button>
-      <SignaturePad name="ownerSignatureDataUrl" label="Homeowner signature" />
-      <Button type="submit">Submit signature</Button>
+      <input type="hidden" name="draftDocumentId" value={draft.id} />
+      <h4 className="font-heading text-sm font-semibold">Sign and return Borang B</h4>
+      <ol className="list-decimal space-y-1 pl-5 text-xs text-muted-foreground">
+        <li>Download or open the draft Borang B from your consultant.</li>
+        <li>Sign it manually (print, wet sign, or sign in your PDF app).</li>
+        <li>Scan or save as PDF, then upload the signed copy here.</li>
+      </ol>
+      <div className="flex flex-wrap gap-2">
+        <Button asChild variant="outline" size="sm">
+          <a href={draft.fileUrl} target="_blank" rel="noreferrer">
+            Open draft Borang B
+          </a>
+        </Button>
+        <Button asChild variant="ghost" size="sm">
+          <a href={draft.fileUrl} download={draft.fileName}>
+            Download draft
+          </a>
+        </Button>
+      </div>
+      <DocumentUploadCard
+        name="file"
+        title="Signed Borang B"
+        subtitle="Upload the signed PDF or scan"
+        required
+        accept=".pdf,.png,.jpg,.jpeg,image/*"
+      />
+      <Button type="submit">Submit signed copy</Button>
     </form>
   );
+}
+
+function BorangBConsultantStatus({ documents }: { documents: DocRow[] }) {
+  const borangDocs = documents.filter((d) => d.docType === "BORANG_B");
+  const awaiting = borangDocs.some((d) => d.status === "PENDING_SIGNATURE");
+  const signed = borangDocs.find((d) => d.status === "SIGNED");
+
+  if (!borangDocs.length) return null;
+
+  if (awaiting && !signed) {
+    return (
+      <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        Borang B sent to homeowner — waiting for them to upload the manually signed copy.
+      </p>
+    );
+  }
+
+  if (signed) {
+    return (
+      <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+        Signed Borang B received. Review the signed file in Documents above, then update the stage
+        status.
+      </p>
+    );
+  }
+
+  return null;
 }
 
 function ConsultantStageEditor({
@@ -324,7 +427,7 @@ function ConsultantStageEditor({
         >
           {STAGE_STATUS_OPTIONS.map((option) => (
             <option key={option} value={option}>
-              {option.replaceAll("_", " ")}
+              {STAGE_STATUS_SELECT_LABEL[option]}
             </option>
           ))}
         </select>

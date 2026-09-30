@@ -68,12 +68,12 @@ export function renderQuotationHtml(vars: ProjectDocVars) {
     );
     const stageLabel =
       m.stageName === "SCHEMATIC"
-        ? "1. Schematic Design Phase"
+        ? "1. Analisa Tapak & Reka Bentuk Awalan"
         : m.stageName === "DESIGN_DEV"
-          ? "2. Design Development Phase"
+          ? "2. Lukisan Rekabentuk & Kelulusan"
           : m.stageName === "CONTRACT_DOC"
-            ? "3. Contract Documentation Phase"
-            : "4. Contract Implementation & Management Phase";
+            ? "3. Lukisan Pembinaan & Penyeliaan"
+            : "4. CCC & Penyiapan";
     return `<tr>
       <td>${esc(stageLabel)}<br/><span class="muted">${esc(m.malay)}</span></td>
       <td class="right">${m.percent}%</td>
@@ -82,17 +82,17 @@ export function renderQuotationHtml(vars: ProjectDocVars) {
     </tr>`;
   }).join("");
 
-  return `<!DOCTYPE html><html lang="ms"><head><meta charset="utf-8" /><title>Quotation ${esc(vars.referenceNo)}</title>${baseStyles()}</head><body>
+  return `<!DOCTYPE html><html lang="ms"><head><meta charset="utf-8" /><title>Sebut Harga ${esc(vars.referenceNo)}</title>${baseStyles()}</head><body>
   ${letterhead()}
   <p class="muted">Ruj. Kami : ${esc(vars.referenceNo)}<br/>Tarikh: ${esc(vars.dateLabel)}</p>
   <p><strong>${esc(vars.ownerName)}</strong><br/>${esc(vars.siteAddress)}<br/>Tel: ${esc(vars.ownerContact)}</p>
   <h1>CADANGAN MEMBINA SATU UNIT RUMAH — ${esc(vars.title)}</h1>
-  <p class="muted">Pengemukaan Cadangan Yuran Perunding (Proposed Consultant Fees)</p>
+  <p class="muted">Pengemukaan Cadangan Yuran Perunding</p>
 
   <h2>1. Skop Perkhidmatan</h2>
-  <p><strong>Schematic Design Phase</strong> — analisis tapak, cadangan rekabentuk awal, pra-rundingan PBT.</p>
-  <p><strong>Design Development Phase</strong> — lukisan rekabentuk muktamad, lukisan kerja, dan pengemukaan KM/PB.</p>
-  <p><strong>Contract Documentation, Implementation & Management</strong> — lukisan asas, pemantauan tapak, pensijilan bayaran interim.</p>
+  <p><strong>Peringkat 1</strong> — analisis tapak, cadangan rekabentuk awal, pra-rundingan PBT.</p>
+  <p><strong>Peringkat 2</strong> — lukisan rekabentuk muktamad, lukisan kerja, dan pengemukaan KM/PB.</p>
+  <p><strong>Peringkat 3 & 4</strong> — lukisan asas, pemantauan tapak, pensijilan bayaran interim, dan CCC.</p>
 
   <h2>2. Jadual Pembayaran</h2>
   <p>Jumlah yuran perunding: <strong>${formatRm(vars.totalFee)}</strong></p>
@@ -125,10 +125,10 @@ export function renderSuratLantikanHtml(
   },
 ) {
   const ownerSig = signatures?.ownerSignatureUrl
-    ? `<img class="sig-img" src="${signatures.ownerSignatureUrl}" alt="Owner signature" />`
+    ? `<img class="sig-img" src="${signatures.ownerSignatureUrl}" alt="Tandatangan pemilik" />`
     : `<div class="sig-line"></div>`;
   const witnessSig = signatures?.witnessSignatureUrl
-    ? `<img class="sig-img" src="${signatures.witnessSignatureUrl}" alt="Witness signature" />`
+    ? `<img class="sig-img" src="${signatures.witnessSignatureUrl}" alt="Tandatangan saksi" />`
     : `<div class="sig-line"></div>`;
 
   return `<!DOCTYPE html><html lang="ms"><head><meta charset="utf-8" /><title>Surat Lantikan ${esc(vars.referenceNo)}</title>${baseStyles()}</head><body>
@@ -171,9 +171,9 @@ export function renderInvoiceHtml(input: {
   percent: number;
   amount: number;
 }) {
-  return `<!DOCTYPE html><html lang="ms"><head><meta charset="utf-8" /><title>Invoice ${esc(input.invoiceNumber)}</title>${baseStyles()}</head><body>
+  return `<!DOCTYPE html><html lang="ms"><head><meta charset="utf-8" /><title>Invois ${esc(input.invoiceNumber)}</title>${baseStyles()}</head><body>
   ${letterhead()}
-  <p class="muted">Invoice No: ${esc(input.invoiceNumber)}<br/>Tarikh: ${esc(input.dateLabel)}<br/>Ruj: ${esc(input.vars.referenceNo)}</p>
+  <p class="muted">No. Invois: ${esc(input.invoiceNumber)}<br/>Tarikh: ${esc(input.dateLabel)}<br/>Ruj: ${esc(input.vars.referenceNo)}</p>
   <p><strong>Bil kepada:</strong><br/>${esc(input.vars.ownerName)}<br/>${esc(input.vars.siteAddress)}<br/>${esc(input.vars.ownerContact)}</p>
   <h1>INVOIS YURAN PERUNDING</h1>
   <table>

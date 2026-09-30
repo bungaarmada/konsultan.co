@@ -12,7 +12,7 @@ export function ContractorPrompt({ projectId }: { projectId: string }) {
           <CardTitle>Certified contractors nearby</CardTitle>
         </div>
         <CardDescription>
-          Nak contractor ke? Peringkat 3 is open — we can recommend certified contractors within
+          Need a contractor? Peringkat 3 is open — we can recommend certified contractors within
           20 km of your project site.
         </CardDescription>
       </CardHeader>

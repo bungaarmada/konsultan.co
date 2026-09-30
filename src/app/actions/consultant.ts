@@ -114,6 +114,52 @@ export async function generateAppointmentDocsAction(projectId: string) {
   revalidatePath(`/homeowner/projects/${projectId}`);
 }
 
+export async function uploadConsultantStageDocAction(formData: FormData) {
+  const user = await requireUser("CONSULTANT");
+  const projectId = String(formData.get("projectId") ?? "");
+  const stageName = String(formData.get("stageName") ?? "") as StageName;
+  const docType = String(formData.get("docType") ?? "") as DocType;
+  const file = getOptionalFile(formData, "file");
+
+  const allowedStages: StageName[] = ["SCHEMATIC", "DESIGN_DEV", "CONTRACT_DOC", "CONTRACT_IMPL"];
+  const allowedTypes: DocType[] = [
+    "QUOTATION",
+    "SURAT_LANTIKAN",
+    "FINAL_DESIGN_DRAWING",
+    "BORANG_B",
+    "CCC",
+    "OTHER",
+  ];
+
+  if (!projectId || !file || !allowedStages.includes(stageName) || !allowedTypes.includes(docType)) {
+    return;
+  }
+
+  const project = await getProject(projectId);
+  if (!project) return;
+
+  const saved = await saveUploadedFile(file, projectId);
+  const existing = await latestDocumentByType(projectId, docType);
+  const needsSignature = docType === "SURAT_LANTIKAN" || docType === "BORANG_B";
+
+  await createDocument({
+    projectId,
+    uploaderId: user.id,
+    docType,
+    stageName,
+    status: needsSignature ? "PENDING_SIGNATURE" : "SUBMITTED",
+    fileUrl: saved.fileUrl,
+    fileName: saved.fileName,
+    mimeType: saved.mimeType,
+    version: (existing?.version ?? 0) + 1,
+  });
+
+  revalidatePath(`/consultant/projects/${projectId}`);
+  revalidatePath(`/consultant/projects/${projectId}/documents`);
+  revalidatePath(`/homeowner/projects/${projectId}`);
+  revalidatePath(`/homeowner/projects/${projectId}/documents`);
+}
+
 export async function updateStageAction(formData: FormData) {
   const user = await requireUser("CONSULTANT");
   const projectId = String(formData.get("projectId") ?? "");

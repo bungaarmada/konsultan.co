@@ -1,0 +1,1 @@
+{"sessionId":"b96c46","runId":"pre-fix","hypothesisId":"A","location":"homeowner/projects/[id]/page.tsx:confirm-call","message":"Homeowner page render may confirm payment","data":{"hasPaidMilestone":true,"hasBillplzId":true,"willConfirm":true},"timestamp":1787724695814}

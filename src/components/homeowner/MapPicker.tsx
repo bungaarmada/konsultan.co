@@ -121,7 +121,7 @@ export function MapPicker({ defaultAddress = "", defaultLat, defaultLng }: MapPi
       </div>
       <input type="hidden" name="siteAddress" value={address || query} />
       <p className="text-xs text-muted-foreground">
-        Coordinates are stored for 20 km contractor matching (Haversine). Search uses OpenStreetMap Nominatim.
+        Coordinates are saved for contractor matching within a 20 km radius. Search uses OpenStreetMap Nominatim.
       </p>
     </div>
   );

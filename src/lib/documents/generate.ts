@@ -82,13 +82,3 @@ export async function generateInvoiceFile(
   );
 }
 
-export function makeReferenceNo(ownerName: string) {
-  const slug = ownerName
-    .trim()
-    .toUpperCase()
-    .replace(/[^A-Z0-9]+/g, "")
-    .slice(0, 12);
-  const year = new Date().getFullYear();
-  const seq = String(Date.now()).slice(-4);
-  return `BAR/CS02/${year}/${slug || "PROJECT"}/${seq}`;
-}

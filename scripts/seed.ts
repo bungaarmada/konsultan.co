@@ -44,6 +44,7 @@ async function upsertAuthUser(input: {
     email: input.email,
     role: input.role,
     phone: input.phone,
+    createdById: null,
     createdAt: new Date(),
   });
   return uid;
@@ -163,6 +164,7 @@ async function main() {
     longitude: 100.7,
     status: "IN_PROGRESS",
     totalFee: 18900,
+    usesLppsa: true,
     referenceNo: "BAR/CS02/2026/ROSNI/01",
     needsContractor: null,
     quoteAcknowledged: true,
@@ -257,6 +259,7 @@ async function main() {
     longitude: 101.6244,
     status: "IN_REVIEW",
     totalFee: 18900,
+    usesLppsa: false,
     referenceNo: "BAR/CS02/2026/AHMAD/02",
     needsContractor: null,
     quoteAcknowledged: false,

@@ -13,6 +13,7 @@ export type UserRecord = {
   email: string;
   role: UserRole;
   phone: string | null;
+  createdById: string | null;
   createdAt: Date;
 };
 
@@ -31,6 +32,7 @@ export type ProjectRecord = {
   longitude: number;
   status: ProjectStatus;
   totalFee: number;
+  usesLppsa: boolean;
   referenceNo: string | null;
   needsContractor: boolean | null;
   quoteAcknowledged: boolean;

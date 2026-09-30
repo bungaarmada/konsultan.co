@@ -17,7 +17,7 @@ export function ContractorGrid({
   if (contractors.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-        No active contractors found within 20 km of this site.
+        No active contractors within 20 km of this site.
       </p>
     );
   }

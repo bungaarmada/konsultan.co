@@ -5,16 +5,17 @@ import { countProjectsByStatus, listProjectRows } from "@/lib/db";
 import { ProjectStatusTable } from "@/components/consultant/ProjectStatusTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PROJECT_STATUS_LABEL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { ProjectStatus } from "@/types";
 
 const FILTERS: { value: string; label: string }[] = [
   { value: "all", label: "All" },
-  { value: "IN_REVIEW", label: "In review" },
-  { value: "IN_PROGRESS", label: "In progress" },
-  { value: "PAYMENT_PENDING", label: "Payment pending" },
-  { value: "COMPLETED", label: "Completed" },
-  { value: "DRAFT", label: "Draft" },
+  { value: "IN_REVIEW", label: PROJECT_STATUS_LABEL.IN_REVIEW },
+  { value: "IN_PROGRESS", label: PROJECT_STATUS_LABEL.IN_PROGRESS },
+  { value: "PAYMENT_PENDING", label: PROJECT_STATUS_LABEL.PAYMENT_PENDING },
+  { value: "COMPLETED", label: PROJECT_STATUS_LABEL.COMPLETED },
+  { value: "DRAFT", label: PROJECT_STATUS_LABEL.DRAFT },
 ];
 
 export default async function ConsultantDashboard({
@@ -38,12 +39,17 @@ export default async function ConsultantDashboard({
           <p className="text-sm text-muted-foreground">Consultant desk</p>
           <h1 className="font-heading text-3xl text-primary">Active projects</h1>
         </div>
-        <Button asChild>
-          <Link href="/consultant/projects/new">
-            <Plus className="h-4 w-4" />
-            New project
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <Link href="/consultant/clients">Clients</Link>
+          </Button>
+          <Button asChild>
+            <Link href="/consultant/projects/new">
+              <Plus className="h-4 w-4" />
+              New project
+            </Link>
+          </Button>
+        </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>

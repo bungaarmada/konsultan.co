@@ -16,7 +16,8 @@ export type DocType =
   | "INVOICE"
   | "FINAL_DESIGN_DRAWING"
   | "BORANG_B"
-  | "CCC";
+  | "CCC"
+  | "OTHER";
 
 export type StageName =
   | "SCHEMATIC"
@@ -108,39 +109,90 @@ export const INITIAL_DOC_TYPES: { type: DocType; label: string; malay: string }[
 
 export const STAGE_DOC_TYPE: Record<StageName, DocType | DocType[]> = {
   SCHEMATIC: ["QUOTATION", "SURAT_LANTIKAN", "INVOICE"],
-  DESIGN_DEV: "FINAL_DESIGN_DRAWING",
-  CONTRACT_DOC: "BORANG_B",
-  CONTRACT_IMPL: "CCC",
+  DESIGN_DEV: ["FINAL_DESIGN_DRAWING", "INVOICE"],
+  CONTRACT_DOC: ["BORANG_B", "INVOICE"],
+  CONTRACT_IMPL: ["CCC", "INVOICE"],
 };
 
 export const STAGE_META: Record<
   StageName,
-  { label: string; full: string; description: string; malay: string }
+  { label: string; full: string; malay: string; descriptionItems: string[] }
 > = {
   SCHEMATIC: {
     label: "Peringkat 1",
-    full: "Schematic Design Phase",
-    malay: "Fasa Rekabentuk Skematik",
-    description:
-      "Site analysis, preliminary design, Surat Lantikan, Quotation, and appointment invoice.",
+    full: "Analisa Tapak & Reka Bentuk Awalan",
+    malay: "Analisa tapak, cadangan awalan & pra-rundingan PBT",
+    descriptionItems: [
+      "Analisa tapak dan keperluan ruang sepertimana kehendak Pihak Klien.",
+      "Penyediaan cadangan dan reka bentuk awalan untuk kelulusan pihak Klien.",
+      "Pra-rundingan dengan pihak Pihak Berkuasa Tempatan (PBT) berkaitan pematuhan kehendak teknikal dan undang-undang.",
+    ],
   },
   DESIGN_DEV: {
     label: "Peringkat 2",
-    full: "Design Development Phase",
-    malay: "Fasa Pembangunan Rekabentuk",
-    description:
-      "Final design drawings, working drawings, and PBT submission (two milestone invoices).",
+    full: "Lukisan Rekabentuk & Kelulusan",
+    malay: "Lukisan muktamad, lukisan kerja & pengemukaan PBT",
+    descriptionItems: [
+      "Penyediaan Lukisan Rekabentuk (muktamad).",
+      "Penyediaan Lukisan Kerja & Pengemukaan Lukisan berserta Dokumen kepada PBT yang berkaitan untuk kelulusan Kebenaran Merancang (KM), Pelan Bangunan (PB) dan Jabatan Teknikal yang terlibat.",
+    ],
   },
   CONTRACT_DOC: {
     label: "Peringkat 3",
-    full: "Contract Documentation Phase",
-    malay: "Fasa Dokumentasi Kontrak",
-    description: "Authority approval, Borang B, homeowner signature, and contractor preference.",
+    full: "Lukisan Pembinaan & Penyeliaan",
+    malay: "Lukisan pembinaan, pemantauan tapak & bayaran interim",
+    descriptionItems: [
+      "Penyediaan Lukisan Pembinaan asas dan Lukisan Perincian asas bagi kegunaan di tapak (2 set).",
+      "Pemantauan dan penyeliaan kerja-kerja secara berkala di tapak (sekiranya perlu): semakan kerja-kerja setting-out, struktur utama, dan arkitektural.",
+      "Semakan dan pengesahan bayaran interim kepada pihak kontraktor.",
+    ],
   },
   CONTRACT_IMPL: {
     label: "Peringkat 4",
-    full: "Contract Implementation & Management Phase",
-    malay: "Fasa Pelaksanaan & Pengurusan Kontrak",
-    description: "Site supervision milestones and CCC at 50% construction completion.",
+    full: "CCC & Penyiapan",
+    malay: "CCC & Penyiapan",
+    descriptionItems: [
+      "Borang CCC (Sijil Siap dan Pematuhan).",
+      "Semakan/muat naik dokumen penyiapan dan invois (10%).",
+    ],
   },
 };
+
+/** Document groups for the homeowner Documents summary (Stage 0 = registration, not a Firestore stage). */
+export const DOCUMENT_GROUPS: {
+  key: "INTAKE" | StageName;
+  label: string;
+  malay: string;
+  docTypes: DocType[];
+}[] = [
+  {
+    key: "INTAKE",
+    label: "Stage 0 · Registration",
+    malay: "Pendaftaran",
+    docTypes: ["INITIAL_GERAN", "INITIAL_IC", "INITIAL_SITE_PLAN"],
+  },
+  {
+    key: "SCHEMATIC",
+    label: "Stage 1 · Site Analysis & Preliminary Design",
+    malay: "Analisa tapak, cadangan awalan & pra-rundingan PBT",
+    docTypes: ["QUOTATION", "SURAT_LANTIKAN", "INVOICE"],
+  },
+  {
+    key: "DESIGN_DEV",
+    label: "Stage 2 · Design Drawings & Approval",
+    malay: "Lukisan muktamad, lukisan kerja & pengemukaan PBT",
+    docTypes: ["FINAL_DESIGN_DRAWING", "INVOICE"],
+  },
+  {
+    key: "CONTRACT_DOC",
+    label: "Stage 3 · Construction Drawings & Supervision",
+    malay: "Lukisan pembinaan, pemantauan tapak & bayaran interim",
+    docTypes: ["BORANG_B", "INVOICE"],
+  },
+  {
+    key: "CONTRACT_IMPL",
+    label: "Stage 4 · CCC & Completion",
+    malay: "CCC & Penyiapan",
+    docTypes: ["CCC", "INVOICE"],
+  },
+];

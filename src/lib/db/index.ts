@@ -74,6 +74,7 @@ function mapUser(id: string, data: DocumentData): UserRecord {
     email: String(data.email ?? "").toLowerCase(),
     role: data.role === "CONSULTANT" ? "CONSULTANT" : "HOMEOWNER",
     phone: data.phone ?? null,
+    createdById: data.createdById ? String(data.createdById) : null,
     createdAt: asDate(data.createdAt),
   };
 }
@@ -94,6 +95,7 @@ function mapProject(id: string, data: DocumentData): ProjectRecord {
     longitude: Number(data.longitude ?? 0),
     status: (data.status as ProjectStatus) ?? "DRAFT",
     totalFee: Number(data.totalFee ?? 0),
+    usesLppsa: Boolean(data.usesLppsa),
     referenceNo: data.referenceNo ?? null,
     needsContractor: typeof data.needsContractor === "boolean" ? data.needsContractor : null,
     quoteAcknowledged: Boolean(data.quoteAcknowledged),
@@ -191,9 +193,18 @@ export async function upsertUserProfile(user: UserRecord) {
         email: user.email.toLowerCase(),
         role: user.role,
         phone: user.phone,
+        createdById: user.createdById,
         createdAt: user.createdAt,
       }),
     );
+}
+
+export async function listHomeowners(): Promise<UserRecord[]> {
+  const snap = await usersCol().get();
+  return snap.docs
+    .map((doc) => mapUser(doc.id, doc.data()))
+    .filter((user) => user.role === "HOMEOWNER")
+    .sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }));
 }
 
 export async function createProject(

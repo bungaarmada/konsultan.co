@@ -17,7 +17,7 @@ export default async function ContractorsPage() {
         <p className="text-sm text-muted-foreground">Consultant desk</p>
         <h1 className="font-heading text-3xl text-primary">Contractor directory</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Listings are filtered for homeowners using Haversine distance from the project pin (default 20 km).
+          Listings are filtered for homeowners by distance from the project site pin (default 20 km).
         </p>
       </div>
       <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -34,7 +34,7 @@ export default async function ContractorsPage() {
               <Input id="companyName" name="companyName" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="regNumber">Registration / CIDB</Label>
+              <Label htmlFor="regNumber">Registration / CIDB no.</Label>
               <Input id="regNumber" name="regNumber" required />
             </div>
             <div className="space-y-2">

@@ -41,8 +41,7 @@ export default async function ContractorMatchPage({
           </p>
           <h1 className="font-heading text-3xl text-primary">Contractors within 20 km</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Distances use the Haversine formula from your site pin. Johor and other far listings are
-            excluded automatically.
+            Distance is calculated from the project site pin. Far listings (e.g. Johor) are excluded automatically.
           </p>
         </div>
         <Button asChild variant="outline">
@@ -64,7 +63,7 @@ export default async function ContractorMatchPage({
             <li>Origin: {project.latitude.toFixed(5)}, {project.longitude.toFixed(5)}</li>
             <li>Radius: {CONTRACTOR_RADIUS_KM} km</li>
             <li>Active contractors only</li>
-            <li>{nearby.length} result{nearby.length === 1 ? "" : "s"} after filter</li>
+            <li>{nearby.length} results after filter</li>
           </ul>
         </div>
       </div>

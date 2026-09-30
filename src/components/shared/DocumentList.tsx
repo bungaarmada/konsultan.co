@@ -14,6 +14,13 @@ const DOC_LABELS: Record<string, string> = {
   FINAL_DESIGN_DRAWING: "Final Design Drawings",
   BORANG_B: "Borang B",
   CCC: "CCC / Certificate of Completion",
+  OTHER: "Other document",
+};
+
+const DOC_STATUS_LABEL: Record<string, string> = {
+  PENDING_SIGNATURE: "Draft · awaiting signature",
+  SIGNED: "Signed copy",
+  SUBMITTED: "Unsigned copy",
 };
 
 export function DocumentList({
@@ -26,6 +33,7 @@ export function DocumentList({
     fileUrl: string;
     version: number;
     uploadedAt: Date;
+    status?: string;
   }[];
 }) {
   if (documents.length === 0) {
@@ -41,17 +49,21 @@ export function DocumentList({
             <div className="min-w-0">
               <p className="truncate text-sm font-medium">{DOC_LABELS[doc.docType] ?? doc.docType}</p>
               <p className="truncate text-xs text-muted-foreground">
-                {doc.fileName} · v{doc.version} · {formatDateTime(doc.uploadedAt)}
+                {doc.fileName} · v{doc.version}
+                {doc.status && DOC_STATUS_LABEL[doc.status]
+                  ? ` · ${DOC_STATUS_LABEL[doc.status]}`
+                  : null}{" "}
+                · {formatDateTime(doc.uploadedAt)}
               </p>
             </div>
           </div>
           <div className="flex shrink-0 gap-1">
-            <Button asChild variant="ghost" size="icon">
+            <Button asChild variant="ghost" size="icon" title="View">
               <a href={doc.fileUrl} target="_blank" rel="noreferrer">
                 <Eye className="h-4 w-4" />
               </a>
             </Button>
-            <Button asChild variant="ghost" size="icon">
+            <Button asChild variant="ghost" size="icon" title="Download">
               <a href={doc.fileUrl} download={doc.fileName}>
                 <Download className="h-4 w-4" />
               </a>

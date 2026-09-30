@@ -31,7 +31,9 @@ export function ProjectStepper({ current }: { current: WorkflowStep }) {
                 <p className={cn("mt-2 text-xs font-medium", active ? "text-accent" : "text-foreground")}>
                   {step.label}
                 </p>
-                <p className="text-[10px] text-muted-foreground">{step.malay}</p>
+                {step.malay !== step.label ? (
+                  <p className="text-[10px] text-muted-foreground">{step.malay}</p>
+                ) : null}
               </div>
             </li>
           );

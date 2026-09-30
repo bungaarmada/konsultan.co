@@ -5,7 +5,7 @@ import type {
   StageStatus,
   WorkflowStep,
 } from "@/types";
-import { STAGE_ORDER } from "@/types";
+import { STAGE_META, STAGE_ORDER } from "@/types";
 import { milestonesForStage, PAYMENT_MILESTONES, previousMilestone } from "@/lib/billing";
 
 export function allStagesApproved(
@@ -41,6 +41,71 @@ export function currentWorkflowStep(project: {
   }
 
   return "CONTRACTOR";
+}
+
+/** Active stage record + display meta for the Current Status panel. */
+export function currentStatusInfo(project: {
+  status: string;
+  suratLantikanSigned?: boolean;
+  quoteAcknowledged: boolean;
+  needsContractor: boolean | null;
+  stages: { stageName: string; status: string; remarks: string | null }[];
+}) {
+  const step = currentWorkflowStep(project);
+
+  if (step === "SUBMISSION") {
+    return {
+      step,
+      stageLabel: "Submission",
+      stageMalay: "",
+      status: "DRAFT" as StageStatus | "DRAFT",
+      remarks: null as string | null,
+    };
+  }
+
+  if (step === "CONSULTANT_REVIEW") {
+    return {
+      step,
+      stageLabel: "Consultant Review",
+      stageMalay: "",
+      status: "PENDING_REVIEW" as StageStatus,
+      remarks: project.stages.find((s) => s.stageName === "SCHEMATIC")?.remarks ?? null,
+    };
+  }
+
+  if (step === "CONTRACTOR") {
+    const last = project.stages.find((s) => s.stageName === "CONTRACT_IMPL");
+    return {
+      step,
+      stageLabel: "Contractor",
+      stageMalay: "",
+      status: (last?.status ?? "COMPLETED") as StageStatus,
+      remarks: last?.remarks ?? null,
+    };
+  }
+
+  const stage = project.stages.find((s) => s.stageName === step);
+  const meta = STAGE_ORDER.includes(step as StageName) ? STAGE_META[step as StageName] : null;
+
+  return {
+    step,
+    stageLabel: meta ? `${meta.label} · ${meta.full}` : step,
+    stageMalay: meta?.malay ?? "",
+    status: (stage?.status ?? "DRAFT") as StageStatus,
+    remarks: stage?.remarks ?? null,
+  };
+}
+
+export function hasIntakeDocuments(documents: { docType: string }[]) {
+  return ["INITIAL_GERAN", "INITIAL_IC", "INITIAL_SITE_PLAN"].every((type) =>
+    documents.some((d) => d.docType === type),
+  );
+}
+
+export function quotationReleased(
+  documents: { docType: string }[],
+): boolean {
+  return documents.some((d) => d.docType === "QUOTATION");
 }
 
 export function canPromptContractors(project: {

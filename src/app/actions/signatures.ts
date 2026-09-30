@@ -6,11 +6,9 @@ import { saveBufferFile } from "@/lib/uploads";
 import { buildProjectDocVars, generateSuratLantikanFile } from "@/lib/documents/generate";
 import {
   createDocument,
-  createSignature,
   createSignatures,
   getDocument,
   getProject,
-  updateDocument,
   updateProject,
   updateStage,
 } from "@/lib/db";
@@ -106,34 +104,6 @@ export async function signSuratLantikanAction(formData: FormData) {
   });
 
   await updateStage(projectId, "SCHEMATIC", { status: "PENDING_REVIEW" });
-
-  revalidatePath(`/homeowner/projects/${projectId}`);
-  revalidatePath(`/consultant/projects/${projectId}`);
-}
-
-export async function signBorangBAction(formData: FormData) {
-  const user = await requireUser("HOMEOWNER");
-  const projectId = String(formData.get("projectId") ?? "");
-  const documentId = String(formData.get("documentId") ?? "");
-  const ownerSignatureDataUrl = String(formData.get("ownerSignatureDataUrl") ?? "");
-  if (!projectId || !documentId || !ownerSignatureDataUrl) return;
-
-  const project = await getProject(projectId);
-  if (!project || project.homeownerId !== user.id) return;
-
-  const ownerSig = await persistSignatureDataUrl(projectId, ownerSignatureDataUrl, "borang-b-signature");
-  await createSignature(projectId, {
-    documentId,
-    signerId: user.id,
-    signerRole: "HOMEOWNER",
-    signerName: project.ownerName,
-    signerIc: project.ownerIc,
-    signerTitle: null,
-    signatureUrl: ownerSig.fileUrl,
-  });
-
-  await updateDocument(projectId, documentId, { status: "SIGNED" });
-  await updateStage(projectId, "CONTRACT_DOC", { status: "PENDING_REVIEW" });
 
   revalidatePath(`/homeowner/projects/${projectId}`);
   revalidatePath(`/consultant/projects/${projectId}`);

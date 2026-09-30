@@ -64,6 +64,20 @@ export async function createBillplzBill(input: {
     throw new Error(`Billplz error: ${response.status} ${text}`);
   }
 
-  const data = (await response.json()) as { id: string; url: string; paid: boolean };
-  return { id: data.id, url: data.url, paid: Boolean(data.paid) };
+  const data = (await response.json()) as { id: string; url: string; paid: boolean | string };
+  return { id: data.id, url: data.url, paid: data.paid === true || data.paid === "true" };
+}
+
+export async function getBillplzBill(billId: string): Promise<BillplzBill | null> {
+  const auth = authHeader();
+  if (!auth || !billId || billId.startsWith("mock_")) return null;
+
+  const response = await fetch(`${BILLPLZ_API}/v3/bills/${encodeURIComponent(billId)}`, {
+    headers: { Authorization: auth },
+    cache: "no-store",
+  });
+  if (!response.ok) return null;
+
+  const data = (await response.json()) as { id: string; url: string; paid: boolean | string };
+  return { id: data.id, url: data.url, paid: data.paid === true || data.paid === "true" };
 }

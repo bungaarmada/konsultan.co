@@ -19,11 +19,11 @@ export function ContractorRadiusMap({ origin, contractors }: ContractorRadiusMap
 
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-card">
-      <iframe title="20km contractor radius" src={mapSrc} className="h-72 w-full" />
+      <iframe title="Contractor radius 20 km" src={mapSrc} className="h-72 w-full" />
       <div className="border-t border-border p-4">
         <p className="text-sm font-medium">Site · {origin.label}</p>
         <p className="text-xs text-muted-foreground">
-          Showing {contractors.length} certified contractor{contractors.length === 1 ? "" : "s"} within 20 km
+          {contractors.length} certified contractors within 20 km
         </p>
         <ul className="mt-3 max-h-40 space-y-1 overflow-auto text-xs">
           {contractors.map((contractor) => (

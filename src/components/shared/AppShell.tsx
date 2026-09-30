@@ -1,18 +1,14 @@
 import Link from "next/link";
-import { HardHat, LayoutDashboard, FolderKanban, LogOut, Plus, Users } from "lucide-react";
+import { HardHat, FolderKanban, LogOut, Plus, Users, Contact } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { initials } from "@/lib/utils";
 import type { SessionUser } from "@/types";
 import { cn } from "@/lib/utils";
 
-const homeownerNav = [
-  { href: "/homeowner", label: "Projects", icon: LayoutDashboard },
-  { href: "/homeowner/projects/new", label: "New project", icon: Plus },
-];
-
 const consultantNav = [
   { href: "/consultant", label: "Projects", icon: FolderKanban },
+  { href: "/consultant/clients", label: "Clients", icon: Contact },
   { href: "/consultant/projects/new", label: "New project", icon: Plus },
   { href: "/consultant/contractors", label: "Contractors", icon: Users },
 ];
@@ -24,7 +20,37 @@ export function AppShell({
   user: SessionUser;
   children: React.ReactNode;
 }) {
-  const nav = user.role === "CONSULTANT" ? consultantNav : homeownerNav;
+  const isHomeowner = user.role === "HOMEOWNER";
+
+  if (isHomeowner) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-end border-b border-primary bg-primary px-4 text-primary-foreground md:px-8">
+          <div className="flex items-center gap-3">
+            <div className="hidden text-right sm:block">
+              <p className="text-sm font-medium">{user.name}</p>
+              <p className="text-xs text-primary-foreground/70">{user.email}</p>
+            </div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-foreground text-xs font-semibold text-primary">
+              {initials(user.name)}
+            </div>
+            <form action={logoutAction}>
+              <Button
+                type="submit"
+                variant="ghost"
+                size="icon"
+                aria-label="Sign out"
+                className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              >
+                <LogOut className="h-5 w-5" />
+              </Button>
+            </form>
+          </div>
+        </header>
+        <main className="px-4 py-8 md:px-8">{children}</main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -34,7 +60,7 @@ export function AppShell({
           <span className="font-heading text-lg tracking-tight">Konsultan.co</span>
         </div>
         <nav className="flex-1 space-y-1 p-3">
-          {nav.map((item) => (
+          {consultantNav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -47,9 +73,14 @@ export function AppShell({
         </nav>
         <div className="border-t border-sidebar-border p-4">
           <p className="text-sm font-medium">{user.name}</p>
-          <p className="text-xs text-sidebar-foreground/60">{user.role === "CONSULTANT" ? "Consultant" : "Homeowner"}</p>
+          <p className="text-xs text-sidebar-foreground/60">Consultant</p>
           <form action={logoutAction} className="mt-3">
-            <Button type="submit" variant="ghost" size="sm" className="w-full justify-start text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground">
+            <Button
+              type="submit"
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            >
               <LogOut className="h-4 w-4" />
               Sign out
             </Button>
@@ -77,7 +108,7 @@ export function AppShell({
           </div>
         </header>
         <nav className="flex gap-2 overflow-x-auto border-b border-border px-4 py-2 md:hidden">
-          {nav.map((item) => (
+          {consultantNav.map((item) => (
             <Link key={item.href} href={item.href} className="rounded-full bg-muted px-3 py-1 text-xs font-medium">
               {item.label}
             </Link>

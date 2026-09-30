@@ -18,13 +18,13 @@ export function QuotationUploadForm({
         <DocumentUploadCard
           name="quotation"
           title="Quotation"
-          subtitle="quotation_doc"
+          subtitle="Quotation document"
           existing={quotation}
         />
         <DocumentUploadCard
           name="suratLantikan"
           title="Surat Lantikan"
-          subtitle="Letter of Appointment"
+          subtitle="Consultant appointment letter"
           existing={surat}
         />
       </div>
